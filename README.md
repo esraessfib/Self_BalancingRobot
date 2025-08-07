@@ -31,6 +31,94 @@ Here are three videos demonstrating the robot’s behavior with different PID se
 # STM32F4 Balancing Robot Wiring Guide
 
 ## Component Overview
+- **Microcontroller**: STM32F4 (e.g., STM32F407 Discovery Board) "I am using STM32F407 Discovery Board in this project"
+- **IMU Sensor**: MPU6050 (accelerometer + gyroscope)
+- **Motors**: 2x DC motors with motor drivers
+- **Communication**: USART3 for debugging
+## Pin Connections
+
+### 1. MPU6050 IMU Sensor (I2C1)
+```
+MPU6050    →    STM32F4
+VCC        →    3.3V
+GND        →    GND
+SCL        →    PB6 (I2C1_SCL)
+SDA        →    PB7 (I2C1_SDA)
+```
+
+**Notes:**
+- Use 4.7kΩ pull-up resistors on SCL and SDA lines
+- MPU6050 I2C address: 0x68
+### 2. Motor Driver Connections (TIM3 PWM)
+
+#### Motor Driver 1 (Left Motor)
+```
+Motor Driver 1    →    STM32F4
+PWM A            →    PB0 (TIM3_CH1)
+PWM B            →    PB5 (TIM3_CH2)
+Enable/VCC       →    5V or 12V (depending on driver)
+GND              →    GND
+Motor Out A      →    Left Motor +
+Motor Out B      →    Left Motor -
+```
+#### Motor Driver 2 (Right Motor)
+```
+Motor Driver 2    →    STM32F4
+PWM A            →    PB4 (TIM3_CH3)
+PWM B            →    PB1 (TIM3_CH4)
+Enable/VCC       →    5V or 12V (depending on driver)
+GND              →    GND
+Motor Out A      →    Right Motor +
+Motor Out B      →    Right Motor -
+```
+
+
+### 3. USART3 Debug Communication (using HC-06 bluetooth module)
+```
+STM32          HC-06 
+PB10       →    RX 
+PB11       →    TX 
+GND        →    GND
+```
+I am using an mobile application as a terminal for viewing USART Debug 
+**Serial Settings:**
+- Baud Rate: 9600
+- Data: 8 bits
+- Stop: 1 bit
+- Parity: None
+
+## Power Supply Recommendations
+
+### Option 1: Separate Power Supplies
+```
+STM32F4 Board:     3.3V/5V (USB or external)
+Motor Drivers:     6V-12V (battery pack)
+MPU6050:          3.3V (from STM32F4)
+```
+### Option 2: Single Battery with Regulators ( used in this project)
+```
+
+Main Battery (7.4V-12V LiPo)
+├── Voltage Regulator (5V) → STM32F4 VIN
+├── Direct → Motor Drivers VCC
+└── 3.3V from STM32F4 → MPU6050
+```
+
+## Motor Driver Wiring Details
+
+### For L298N Motor Driver:( used in this project)
+```
+L298N Pins    →    Connection
+IN1          →    PB0 (TIM3_CH1)
+IN2          →    PB5 (TIM3_CH2)
+IN3          →    PB4 (TIM3_CH3)
+IN4          →    PB1 (TIM3_CH4)
+ENA          →    5V (always enabled)
+ENB          →    5V (always enabled)
+```
+
+### For DRV8833 Motor Driver:
+```
 DRV8833 Pins    →    Connection
 AIN1           →    PB0 (TIM3_CH1)
 AIN2           →    PB5 (TIM3_CH2)
@@ -88,4 +176,3 @@ BIN2           →    PB1 (TIM3_CH4)
 - **Battery**: 2S LiPo (7.4V) or 6x AA batteries
 - **IMU**: MPU6050 breakout board
 - **Frame**: Lightweight chassis (3D printed or acrylic)
-
